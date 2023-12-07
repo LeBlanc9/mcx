@@ -16,9 +16,6 @@ def ndarray2structured_point(data, output_name="output") -> None:
     writer.SetInputData(structured_points)
     writer.Write() 
 
-def cfg_construnctor() -> dict:
-    pass
-
 
 if __name__ == "__main__":
     pass
