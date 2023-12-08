@@ -30,12 +30,24 @@ class Simulator:
         #cls.cfg['vol'][:,:10,:] = 0
         return cls.cfg
 
+    ## 根据cls.cfg参数进行仿真
+    # return {'flux', ...}
     @classmethod
     def simulate(cls) -> dict:
         cls.res = pmcx.mcxlab(cls.cfg)
         cls.flux = np.squeeze(cls.res['flux'])
         return cls.res
 
+    ## 获取探测器采集到的漫反射率
+    # return [r1, r2, r3, ...]
+    @classmethod 
+    def get_detect_r(cls) -> list:
+        if cls.res == {}:
+            raise Exception("Please make sure simulated with detpos settled first")
+        reflectance = pmcx.cwdref(Simulator.res['detp'], Simulator.cfg)
+        return reflectance
+
+    ## 调试使用，获取某个切片部位的flux图
     @classmethod
     def slice_visualize(cls, slice_idx=50):
         reflectence = cls.flux[slice_idx,:,:]
@@ -59,5 +71,6 @@ class Simulator:
 if __name__ == "__main__":
     simulator = Simulator()
     simulator.simulate()
-    reflectance = pmcx.cwdref(simulator.res['detp'], simulator.cfg)
+    #reflectance = pmcx.cwdref(simulator.res['detp'], simulator.cfg)
+    reflectance = simulator.get_detect_r()
     print(reflectance)

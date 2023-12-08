@@ -78,7 +78,7 @@ class Trainer():
         for ua,us in self.optical_parameters:
             simulator.cfg['prop'] = [[0,0,1,1],[ua,us, 0.8,1.37]]
             simulator.simulate() 
-            reflectance = pmcx.cwdref(simulator.res['detp'], simulator.cfg)
+            reflectance = simulator.get_detect_r()
             self.reflectances.append(reflectance)
         return self.reflectances
 
