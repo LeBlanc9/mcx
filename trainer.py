@@ -60,14 +60,19 @@ class Trainer():
 
 
     ## 获取需要仿真光学参数们到optical_parameters列表
+    #   return [[op1, op2, ...], 
+    #           [op1, op2, ...], 
+    #                 ...      ]
     def __get_optical_parameters(self) -> list:
         for i in range(len(self.ua_group)):
-            for j in range(len(self.us_group)):
-                self.optical_parameters.append((self.ua_group[i], self.us_group[j])) 
+            self.optical_parameters.append([self.ua_group[i], self.us_group[i]])
         return self.optical_parameters
 
 
     ## 对optical_parameters列表中的参数进行逐一仿真，获得漫反射值
+    #   return [[r1,r2,r3,...],
+    #           [r1,r2,r3,...],
+    #               ...       ]
     def __get_reflectances(self) -> list:
         simulator = Simulator()
         for ua,us in self.optical_parameters:
@@ -87,10 +92,10 @@ class Trainer():
         df.to_csv('dataset/' + filename)
 
     ## 仿真获取训练数据并保存为csv
-    def get_csv_dataset(self, number=10, filename='test.csv') -> None:
+    def get_csv_dataset(self, number=10000, filename='test.csv') -> None:
         ## 设置需要进行仿真的数据集
-        self.ua_group = np.linspace(0.05, 0.3, number)
-        self.us_group = np.linspace(0.5, 3.5, number)
+        self.ua_group = np.random.uniform(0.05, 0.3, number)
+        self.us_group = np.random.uniform(0.5, 3.5, number)
         self.optical_parameters = []
         self.reflectances = []
 
@@ -102,4 +107,5 @@ class Trainer():
 if __name__ == "__main__":
     trainer = Trainer()
     #trainer.tain()
-    trainer.get_csv_dataset(number=50, filename='50_random_uniform.csv')
+    trainer.get_csv_dataset(number=10000, filename='t10000_random_uniform.csv')
+    #trainer.get_csv_dataset(number=50, filename='10000_random_uniform.csv')
