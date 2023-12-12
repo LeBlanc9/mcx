@@ -1,6 +1,7 @@
-*.png
 __pycache__/*
+runs/*
 
+*.png
 *.ipynb
 *.m
 *.vtk

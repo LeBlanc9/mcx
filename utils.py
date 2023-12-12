@@ -1,5 +1,7 @@
 import vtkmodules.all as vtk
 import vtkmodules.util.numpy_support as numpy_support 
+import pandas as pd
+import sys
 
 def ndarray2structured_point(data, output_name="output") -> None:
     vtk_array = numpy_support.numpy_to_vtk(data.ravel(), deep=True, array_type=vtk.VTK_FLOAT)
@@ -15,6 +17,23 @@ def ndarray2structured_point(data, output_name="output") -> None:
     writer.SetFileName(output_name+".vtk")
     writer.SetInputData(structured_points)
     writer.Write() 
+
+
+def output(func): 
+    def wrapper(*args, **kwargs):
+        sys.stdout = open('output.log', 'w')
+        result = func()
+        sys.stdout.close()
+        sys.stdout = sys.__stdout__
+        return result
+    return wrapper
+
+def log(*arg):
+    sys.stdout = open('output.log', 'a')
+    print(*arg)
+    sys.stdout.close()
+    sys.stdout = sys.__stdout__
+   
 
 
 if __name__ == "__main__":

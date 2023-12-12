@@ -1,4 +1,5 @@
 import matplotlib.pylab as plt
+import sys
 import numpy as np
 import pmcx
 
@@ -19,7 +20,7 @@ class Simulator:
             'tstep':5e-9,
             'srcpos': [50,10,0],
             'srcdir':[0,0,1],
-            'prop':[[0,0,1,1],[7,1,0.1,1.37]],
+            'prop':[[0,0,1,1],[7,1,0.8,1.37]],
             'unitinmm': 0.1,
             'issavedet':1,
             'issaveseed':1,

@@ -1,43 +1,54 @@
 import numpy as np
+from scipy.optimize import least_squares
 from simulator import Simulator
-from scipy.optimize import least_squares, leastsq
-import pmcx
+from utils import log
 
-##
-# op -> Optical Parameter
-#  
 
-class InverseMC(): 
+class InverseMC:
+    def __init__(self):
+        self.target_r = [0.017224096536046313,0.007471655626211807,0.0060548643240016875,0.004308402758773683,0.002837477484125674,0.0020984815783706458,0.0023184437171650347,0.0018082351173437487,0.00142540206117369,0.001463391218167464]
+        self.initial_params = [0.01,0.8]  # 你需要根据你的问题提供一个合理的初始估计
 
-    def __init__(self, target_r):
-        Simulator.default_configure()
 
-        self.init_op = [0.1, 0.5]
-        self.target_r = target_r 
+    def optimize(self):
+        result = least_squares(self.cost_function, self.initial_params, args=(self.target_r,), bounds=[0.001,1.5], f_scale=1)
+        # 输出结果
+        optimized_op = result.x
 
-    def run(self):
-        for i in range(100):
-            res, flag = leastsq(self.loss, self.init_op, args=(self.target_r,), full_output=True)
+        simulator = Simulator()
+        simulator.cfg['prop'] = [[0,0,1,1],[optimized_op[0],optimized_op[1], 0.8,1.37]]
+        simulator.simulate()
+        optimized_r = simulator.get_detect_r()
 
-            # 输出目标函数的值
-            print('iteration:', i+1, 'loss:', flag['fvec'])
-            # 判断是否收敛，如果收敛则跳出循环
-            if flag['ierr'] == 1:
-                break
-            # 更新初始光学参数
-            u0 = res              
+        log("Optimized ua:", optimized_op[0])
+        log("Optimized us:", optimized_op[1])
+        log("Optimized Reflectance (r):", list(optimized_r))
+        log("Target Reflectance (r):", self.target_r)
+
+        result = {
+            "op": optimized_op,
+            "reflectence": optimized_r
+        }
+        return result
+
 
     @staticmethod
-    def loss(op, target_r):
-        ua, ub = op[0], op[1]
-        Simulator.cfg['prop'] = [[0,0,1,1], [ua,ub,0.8,1.37]]
-        Simulator.simulate()
-        r = Simulator.get_detect_r()[1]
+    def cost_function(op, target_r):
+        ua, us = op
 
-        loss = r - target_r
-        return loss
+        log("-"*50)
+        log(op)
+
+        simulator = Simulator()
+        simulator.cfg['prop'] = [[0,0,1,1],[ua,us, 0.8,1.37]]
+        simulator.simulate()
+        reflectence = simulator.get_detect_r()
+        cost = np.sqrt((target_r-reflectence)**2)
+        log("cost: ", cost.sum())
+
+        return cost
 
 
 if __name__ == "__main__":
-    inverseMC = InverseMC(target_r=0.0001)
-    inverseMC.run()
+    inverseMC = InverseMC()
+    inverseMC.optimize()
