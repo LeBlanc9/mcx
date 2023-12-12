@@ -28,7 +28,9 @@ class Simulator:
             'savedetflag':'dpx',
         }
         cls.__set_detpos()
-        #cls.cfg['vol'][:,:10,:] = 0
+        cls.cfg['vol'][:,:,:5] = 2
+        cls.cfg['prop'] = [[0,0,1,1],[7,1,0.8,1.37], [0.05,0.5,0.8,1.37]] 
+        
         return cls.cfg
 
     ## 根据cls.cfg参数进行仿真
@@ -72,6 +74,7 @@ class Simulator:
 if __name__ == "__main__":
     simulator = Simulator()
     simulator.simulate()
+    simulator.slice_visualize()
     #reflectance = pmcx.cwdref(simulator.res['detp'], simulator.cfg)
     reflectance = simulator.get_detect_r()
     print(reflectance)
